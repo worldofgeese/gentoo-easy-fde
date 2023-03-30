@@ -23,7 +23,7 @@ done
 #default variables
 encrypt_boot="FALSE"
 default_boot_iter_time="42"       #Iteration time in ms for the encrypted /boot partition, will be much slower due bad implementation in GRUB
-default_swap_size="12Gb"          #Swap size
+default_swap_size="64Gb"          #Swap size
 default_root_size="100%FREE"			#100% of the available disk space will be used by LCM
 keyfile_to_boot="FALSE"
 default_boot_size="1024M"         #size of /boot
@@ -210,7 +210,7 @@ fi
 mkfs.vfat -F 32 -n EFI-SP /dev/${DM}3
 
 pvcreate /dev/mapper/${DM}5_crypt
-vgcreate ubuntu-vg /dev/mapper/${DM}5_crypt
+vgcreate vg0 /dev/mapper/${DM}5_crypt
 while true
 do
 read -r -p "How big should the swap be? Default is 12Gb: " input
@@ -221,7 +221,7 @@ read -r -p "How big should the swap be? Default is 12Gb: " input
 			default_swap_size=$input
 		;;
 	esac
-	if lvcreate -L $default_swap_size -n swap ubuntu-vg
+	if lvcreate -L $default_swap_size -n swap vg0
 		then
 			break
 		else
@@ -239,7 +239,7 @@ read -r -p "How big should the rest be? Default is 100%FREE of the available spa
 			default_root_size=$input
 		;;
 	esac
-	if lvcreate -l ${default_root_size} -n root ubuntu-vg
+	if lvcreate -l ${default_root_size} -n root vg0
 		then
 			break
 		else
@@ -247,33 +247,10 @@ read -r -p "How big should the rest be? Default is 100%FREE of the available spa
 	fi
 done
 
-#read -p "Now start the installer. After the installation started, press enter to continue"
-ubiquity & pid=$!
-
-if [[ $encrypt_boot == "TRUE" ]]
-	then
-		while true
-		do
-			if echo "GRUB_ENABLE_CRYPTODISK=y" >> /target/etc/default/grub
-				then
-					break
-				else
-					sleep 5
-			fi
-		done
-fi
-
 #read -p "After installation has finished press enter to continue"
 wait $pid
 
-mount /dev/mapper/ubuntu--vg-root /mnt -o subvol=@
-mount -o bind /dev/ /mnt/dev
-mount -t sysfs sysfs /mnt/sys
-mount -t proc procfs /mnt/proc
-
-cp $PWD/chroot_script.sh /mnt/chroot_script.sh
-chroot /mnt ./chroot_script.sh $encrypt_boot
-rm /mnt/chroot_script.sh
+mount /dev/mapper/vg0-root /mnt/gentoo
 
 echo "Finished successfully. You can now reboot your system."
 exit
