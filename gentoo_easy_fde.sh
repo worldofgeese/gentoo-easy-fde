@@ -250,7 +250,36 @@ done
 #read -p "After installation has finished press enter to continue"
 wait $pid
 
-mount /dev/mapper/vg0-root /mnt/gentoo
+mkfs.ext4 /dev/mapper/vg0-root
+mkswap /dev/mapper/vg0-swap
+swapon -v /dev/mapper/vg0-swap
+#mkdir /mnt/gentoo
+#mount /dev/mapper/${DM}5-root /mnt/gentoo
+#cd /mnt/gentoo
+#pacman -Sy wget
+#wget https://bouncer.gentoo.org/fetch/root/all/releases/amd64/autobuilds/20230326T170209Z/stage3-amd64-desktop-systemd-20230326T170209Z.tar.xz
+#tar xvJpf stage3-amd64-desktop-systemd-20220102T170545Z.tar.xz --xattrs --numeric-owner
+#cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
+#mount --types proc /proc /mnt/gentoo/proc
+#mount --rbind /sys /mnt/gentoo/sys
+#mount --make-rslave /mnt/gentoo/sys
+#mount --rbind /dev /mnt/gentoo/dev
+#mount --make-rslave /mnt/gentoo/dev
+#mount --bind /run /mnt/gentoo/run
+#mount --make-slave /mnt/gentoo/run
+#test -L /dev/shm && rm /dev/shm && mkdir /dev/shm 
+#mount -t tmpfs -o nosuid,nodev,noexec shm /dev/shm 
+#chmod 1777 /dev/shm 
+#chroot /mnt/gentoo /bin/bash
+#source /etc/profile 
+#export PS1="(chroot) ${PS1}"
+#mount /dev/nvme0n1p1 /boot
+#emerge-webrsync
+#eselect profile set 11 #for a merged-usr Plasma desktop profile https://groups.google.com/g/linux.gentoo.dev/c/xqZYsMmCoME/m/XlplgAnTAwAJ
+#ln -sf ../usr/share/zoneinfo/Europe/Copenhagen /etc/localtime
+#nano -w /etc/locale.gen
+#eselect locale set 4 # set locale to en_US
+#env-update && source /etc/profile && export PS1="(chroot) ${PS1}"
 
 echo "Finished successfully. You can now reboot your system."
 exit
